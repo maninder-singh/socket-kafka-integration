@@ -15,7 +15,7 @@ when needed.
 ## Setup Guide
 
 * If Redis and kafka are hosted somewhere provide those details in 
-config.js file otherwise follow below steps to setup locally 
+[config.js](./app/config.js) file otherwise follow below steps to setup locally 
 
 * Run redis server
 ```
