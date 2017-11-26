@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='/socket.io/socket.io.js'></script>
+        <script>
+            var socket = io();
+
+            socket.on('ConnectionEstablised', function(data) {
+                addMessage(data.id);
+                socket.on(data.id.toString(),function(response){
+                    console.log("Response from Kafka : " + JSON.stringify(response.data));
+                });
+                socket.emit("JoinRoom",[socket.id]);
+            });
+
+            socket.on("KafkaConsumerResponse",function(response){
+                console.log("KafkaConsumerResponse : " + JSON.stringify(response.data));
+            });
+            
+            function addMessage(message) {
+                var text = document.createTextNode(message),
+                    el = document.createElement('li'),
+                    messages = document.getElementById('messages');
+
+                el.appendChild(text);
+                messages.appendChild(el);
+            }
+        </script>
+    </head>
+    <body>
+        <ul id='messages'></ul>
+    </body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "socket-kafka-integration",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app/app"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "kafka-node": "^2.3.0",
+    "redis": "^2.8.0",
+    "socket.io": "^2.0.4",
+    "socket.io-redis": "^5.2.0",
+    "sticky-session": "^1.1.2"
+  }
+}
