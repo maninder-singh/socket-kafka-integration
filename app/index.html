@@ -6,28 +6,27 @@
             var socket = io();
 
             socket.on('ConnectionEstablised', function(data) {
-                addMessage(data.id);
+                addMessage(data);
                 socket.on(data.id.toString(),function(response){
                     console.log("Response from Kafka : " + JSON.stringify(response.data));
                 });
-                socket.emit("JoinRoom",[socket.id]);
+                socket.emit("JoinRoom",socket.id);
             });
 
             socket.on("KafkaConsumerResponse",function(response){
                 console.log("KafkaConsumerResponse : " + JSON.stringify(response.data));
+                var ele = document.getElementById("msgFromKafka");
+                ele.innerText = "Kafka Response to socket : " + socket.id;
             });
             
             function addMessage(message) {
-                var text = document.createTextNode(message),
-                    el = document.createElement('li'),
-                    messages = document.getElementById('messages');
-
-                el.appendChild(text);
-                messages.appendChild(el);
+                var ele = document.getElementById("connectionMsg");
+                ele.innerHTML = `Socket io connected on : ${message.id}`;
             }
         </script>
     </head>
     <body>
-        <ul id='messages'></ul>
+        <div id="connectionMsg">Socket io connected on : </div>
+        <div id="msgFromKafka"></div>
     </body>
 </html>

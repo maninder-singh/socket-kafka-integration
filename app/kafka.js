@@ -1,12 +1,17 @@
 const config = require("./config"),
     kafka = require('kafka-node'),
-    Consumer = kafka.Consumer,
-    redisClient = require("./redis"),
-    client = new kafka.Client(`${config.KAFKA.CONSUMER.HOST}:${config.KAFKA.CONSUMER.PORT}`);
-    consumer = new Consumer(client,[{topic: config.KAFKA.CONSUMER.TOPIC, partition: 0}],{autoCommit:false});
+    consumerGroup = new kafka.ConsumerGroup({
+                host: `${config.KAFKA.ZOOKEEPER.HOST}:${config.KAFKA.ZOOKEEPER.PORT}`,
+                kafkaHost: `${config.KAFKA.CONSUMER.HOST}:${config.KAFKA.CONSUMER.PORT}`,
+                ssl: config.KAFKA.CONSUMER.SSL,
+                groupId: `${config.KAFKA.CONSUMER.GROUP}`,
+                protocol: config.KAFKA.CONSUMER.PROTOCOL,
+                fromOffset: config.KAFKA.CONSUMER.FROM_OFFSET,
+            },config.KAFKA.CONSUMER.TOPIC);
 
-exports.init = (io) => {    
-    consumer.on('message', function (message) {
+exports.init = (io) => {
+    consumerGroup.on('message', function (message) {
+        console.log("Kafka consumer message listner call");
         var data;
         try{
             data = JSON.parse(message.value);
@@ -15,15 +20,10 @@ exports.init = (io) => {
         }
 
         if(data.id){
-            redisClient.get(`${config.MODULE_NAME}:${data.id}`).then((response) => {
-                var socket = io.sockets.connected[data.id];
-                if(socket){
-                    socket.emit("KafkaConsumerResponse",{"data":data});
-                    redisClient.del(`${config.MODULE_NAME}:${data.id}`);
-                }
-            },(error) => {
-               console.log("error : " + error);
-            });
+            var socket = io.sockets.in(data.id);
+            if(socket){
+                socket.emit("KafkaConsumerResponse",{"data":data});
+            }
         }
     });
 };
